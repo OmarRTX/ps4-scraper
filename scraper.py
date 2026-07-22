@@ -400,7 +400,7 @@ def main() -> None:
                         if not category:
                             continue
 
-                      logger.info("Match [%s]: %s - %s EGP", category, title, price)
+                     logger.info("Match [%s]: %s - %s EGP", category, title, price)
                         sent_ok = False
                         for chat_id in CHAT_IDS:
                             if send_telegram_alert(title, price, link):
