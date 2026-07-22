@@ -45,7 +45,8 @@ logging.basicConfig(
 logger = logging.getLogger("marketplace_scraper")
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
-CHAT_ID = os.environ.get("CHAT_ID")
+RAW_CHAT_IDS = os.environ.get("CHAT_ID", "")
+CHAT_IDS = [cid.strip() for cid in RAW_CHAT_IDS.split(",") if cid.strip()]
 
 STORAGE_STATE_PATH = "storage_state.json"
 SENT_LISTINGS_PATH = "sent_listings.json"
@@ -400,7 +401,10 @@ def main() -> None:
                             continue
 
                         logger.info("Match [%s]: %s - %s EGP", category, title, price)
-                        if send_telegram_alert(title, price, link):
+                       sent_ok = False
+for chat_id in CHAT_IDS:
+    if send_telegram_alert(title, price, link): # أو نبعت للـ chat_id المباشر
+        sent_ok = True
                             notified_this_run.add(link)
                             sent_listings[link] = time.time()
                             matches_sent += 1
