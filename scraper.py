@@ -15,8 +15,8 @@ Required environment variables:
 
 Optional local file:
     storage_state.json - a saved Playwright/Facebook login session
-                          (see login_helper.py). Without it, Facebook will
-                          very likely show a login wall instead of results.
+                         (see login_helper.py). Without it, Facebook will
+                         very likely show a login wall instead of results.
 """
 
 import json
@@ -210,12 +210,12 @@ def classify_listing(title: str, price: int) -> Optional[str]:
 # Telegram
 # ---------------------------------------------------------------------------
 
-def send_telegram_alert(title: str, price: int, link: str, retries: int = 2) -> bool:
+def send_telegram_alert(chat_id: str, title: str, price: int, link: str, retries: int = 2) -> bool:
     """
     Send a formatted deal alert to the configured Telegram chat.
     Returns True if Telegram accepted the message, False otherwise.
     """
-    if not TELEGRAM_TOKEN or not CHAT_ID:
+    if not TELEGRAM_TOKEN or not chat_id:
         logger.error("TELEGRAM_TOKEN or CHAT_ID is not set - cannot send alert.")
         return False
 
@@ -228,7 +228,7 @@ def send_telegram_alert(title: str, price: int, link: str, retries: int = 2) -> 
     )
 
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-    payload = {"chat_id": CHAT_ID, "text": message}
+    payload = {"chat_id": chat_id, "text": message}
 
     for attempt in range(1, retries + 1):
         try:
@@ -367,8 +367,8 @@ def scrape_city(browser, city_name: str, url: str) -> list:
 def main() -> None:
     logger.info("Starting Facebook Marketplace PS4 scan...")
 
-    if not TELEGRAM_TOKEN or not CHAT_ID:
-        logger.error("TELEGRAM_TOKEN and/or CHAT_ID are missing. Exiting.")
+    if not TELEGRAM_TOKEN or not CHAT_IDS:
+        logger.error("TELEGRAM_TOKEN and/or CHAT_IDS are missing. Exiting.")
         sys.exit(1)
 
     sent_listings = load_sent_listings()   # persisted across scheduled runs
@@ -400,16 +400,16 @@ def main() -> None:
                         if not category:
                             continue
 
-                     logger.info("Match [%s]: %s - %s EGP", category, title, price)
+                        logger.info("Match [%s]: %s - %s EGP", category, title, price)
                         sent_ok = False
                         for chat_id in CHAT_IDS:
-                            if send_telegram_alert(title, price, link):
+                            if send_telegram_alert(chat_id, title, price, link):
                                 sent_ok = True
+                                
                         if sent_ok:
                             notified_this_run.add(link)
                             sent_listings[link] = time.time()
                             matches_sent += 1
-                    
 
                     time.sleep(2)  # be a little gentler between cities
             finally:
