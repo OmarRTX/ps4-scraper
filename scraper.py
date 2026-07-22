@@ -400,14 +400,16 @@ def main() -> None:
                         if not category:
                             continue
 
-                        logger.info("Match [%s]: %s - %s EGP", category, title, price)
-                       sent_ok = False
-for chat_id in CHAT_IDS:
-    if send_telegram_alert(title, price, link): # أو نبعت للـ chat_id المباشر
-        sent_ok = True
+                      logger.info("Match [%s]: %s - %s EGP", category, title, price)
+                        sent_ok = False
+                        for chat_id in CHAT_IDS:
+                            if send_telegram_alert(title, price, link):
+                                sent_ok = True
+                        if sent_ok:
                             notified_this_run.add(link)
                             sent_listings[link] = time.time()
                             matches_sent += 1
+                    
 
                     time.sleep(2)  # be a little gentler between cities
             finally:
