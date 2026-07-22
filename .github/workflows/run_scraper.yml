@@ -2,7 +2,7 @@ name: PS4 Deals Scraper
 
 on:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -20,7 +20,14 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install splinter beautifulsoup4 requests selenium
+          pip install playwright requests
+          playwright install chromium
+
+      - name: Setup Facebook Login State
+        env:
+          FB_STORAGE_STATE: ${{ secrets.FB_STORAGE_STATE }}
+        run: |
+          echo "$FB_STORAGE_STATE" | base64 -d > storage_state.json
 
       - name: Run Scraper
         env:
